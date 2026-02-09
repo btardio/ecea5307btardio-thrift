@@ -64,7 +64,7 @@ gen-cpp/Calculator.cpp gen-cpp/SharedService.cpp gen-cpp/shared_types.cpp gen-cp
 
 AM_CPPFLAGS = $(BOOST_CPPFLAGS) $(LIBEVENT_CPPFLAGS) -I$(top_srcdir)/lib/cpp/src -Igen-cpp
 AM_CXXFLAGS = -Wall -Wextra -pedantic
-AM_LDFLAGS = $(BOOST_LDFLAGS) $(LIBEVENT_LDFLAGS)
+AM_LDFLAGS = $(BOOST_LDFLAGS) $(LIBEVENT_LDFLAGS) -lOpenCL
 
 clean-local:
 	$(RM) gen-cpp/*
