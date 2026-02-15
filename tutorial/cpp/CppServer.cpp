@@ -63,6 +63,7 @@ const char *saxpy_kernel =
 "}                                          \n";
 
 
+
 class RgbaHandler : public rgbatransformIf {
 public:
   RgbaHandler();
@@ -78,7 +79,38 @@ RgbaHandler::RgbaHandler() {
 
 }
 
-void RgbaHandler::doMosul(std::vector<long int>& a, const std::vector<long int>& b) {
+void RgbaHandler::doMosul(std::vector<long int>& a, const std::vector<long int>& vec) {
+	
+	
+	
+	
+	
+	
+	
+	for (const auto& value : vec) {
+        std::cout << value << std::endl;
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
 
