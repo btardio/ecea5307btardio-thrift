@@ -17,7 +17,10 @@
  * under the License.
  */
 
+
 #include <iostream>
+#include <vector>
+#include <fstream>
 
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/transport/TSocket.h>
@@ -36,6 +39,40 @@ using namespace tutorial;
 using namespace shared;
 //using namespace rgbatransform;
 
+
+
+struct Pixel {
+    unsigned char r, g, b, a;
+};
+
+// Write an 8x8x8x8 RGBA file
+void writeRGBA(const std::string& filename, int width, int height, const std::vector<Pixel>& pixels) {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        std::cerr << "Error opening file for writing!" << std::endl;
+        return;
+    }
+    // Write raw pixel data directly
+    file.write(reinterpret_cast<const char*>(pixels.data()), pixels.size() * sizeof(Pixel));
+    file.close();
+}
+
+// Read an 8x8x8x8 RGBA file
+std::vector<rgbastruct> readRGBA(const std::string& filename, int width, int height) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        std::cerr << "Error opening file for reading!" << std::endl;
+        return {};
+    }
+    std::vector<rgbastruct> pixels(width * height);
+    file.read(reinterpret_cast<char*>(pixels.data()), pixels.size() * sizeof(rgbastruct));
+    file.close();
+    return pixels;
+}
+
+
+
+
 int main() {
   std::shared_ptr<TTransport> socket(new TSocket("192.168.1.100", 9090));
   std::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
@@ -52,6 +89,37 @@ int main() {
 	rgbaclient.doMosul(my_vector, my_vector);
 	
     rgbaclient.ehlo();
+    
+    
+    
+    std::vector<rgbastruct> outvector;
+    
+    
+    
+    int width = 8, height = 8;
+    std::vector<Pixel> image(width * height, {255, 0, 0, 255}); // Red opaque pixels
+
+    // Write
+    writeRGBA("test.rgba", width, height, image);
+
+    // Read
+    std::vector<rgbastruct> loadedImage = readRGBA("test.rgba", width, height);
+
+    
+    
+
+    
+    
+    rgbaclient.doMosulA(outvector, loadedImage);
+    
+    
+    
+    
+    
+    
+    
+    
+    
     //cout << "ping()" << '\n';
 
     //cout << "1 + 1 = " << client.add(1, 1) << '\n';

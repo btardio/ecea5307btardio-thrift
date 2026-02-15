@@ -72,6 +72,7 @@ public:
     
   void doMosul(std::vector<long int>&, const std::vector<long int>&) override;
   
+  void doMosulA(std::vector<rgbastruct>&, const std::vector<rgbastruct>&) override;
   
 };
 
@@ -79,7 +80,20 @@ RgbaHandler::RgbaHandler() {
 
 }
 
-void RgbaHandler::doMosul(std::vector<long int>& a, const std::vector<long int>& vec) {
+void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastruct>& pixel_list) {
+	
+	
+	  for (const rgbastruct pixel : pixel_list) {
+    std::cout << "R: " << static_cast<int>(pixel.r)
+              << ", G: " << static_cast<int>(pixel.g)
+              << ", B: " << static_cast<int>(pixel.b)
+              << ", A: " << static_cast<int>(pixel.a) << std::endl;
+  }
+	
+	
+}
+
+void RgbaHandler::doMosul(std::vector<long int>& a, const std::vector<long int>& b) {
 	
 	
 	
@@ -87,9 +101,7 @@ void RgbaHandler::doMosul(std::vector<long int>& a, const std::vector<long int>&
 	
 	
 	
-	for (const auto& value : vec) {
-        std::cout << value << std::endl;
-    }
+	
 	
 	
 	

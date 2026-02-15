@@ -156,8 +156,17 @@ service Calculator extends shared.SharedService {
  * to look at. It even has pretty indentation.
  */
  
+struct rgbastruct {
+  1: byte r,
+  2: byte g,
+  3: byte b,
+  4: byte a,
+}
+
 service rgbatransform {
    void ehlo(),
-   list<i64> doMosul(1:list<i64> rgba)
+   list<i64> doMosul(1:list<i64> rgba),
+   list<rgbastruct> doMosulA(1:list<rgbastruct> rgba)
 }
  
+
