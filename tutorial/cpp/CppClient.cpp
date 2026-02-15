@@ -47,11 +47,11 @@ int main() {
 
   try {
     transport->open();
-    
+    std::vector<long int> my_vector = {1000000000L, 2000000000L, 3000000000L};
 	cout << "ping rgba" << '\n';
-	rgbaclient.ehlo();
+	rgbaclient.doMosul(my_vector, my_vector);
 	
-    //client.ping();
+    rgbaclient.ehlo();
     //cout << "ping()" << '\n';
 
     //cout << "1 + 1 = " << client.add(1, 1) << '\n';

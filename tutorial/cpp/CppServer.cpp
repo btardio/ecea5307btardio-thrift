@@ -275,25 +275,45 @@ class CalculatorCloneFactory : virtual public CalculatorIfFactory {
   }
 };
 
-int main() {
-  TThreadedServer server(
-    std::make_shared<CalculatorProcessorFactory>(std::make_shared<CalculatorCloneFactory>()),
-    std::make_shared<TServerSocket>(9090), //port
-    std::make_shared<TBufferedTransportFactory>(),
-    std::make_shared<TBinaryProtocolFactory>());
+//rgbatransformIfFactory
+//class rgbatransformCloneFactory : virtual public rgbatransformIfFactory {
+// public:
+//  ~rgbatransformCloneFactory() override = default;
+//  rgbatransformIf* getHandler(const ::apache::thrift::TConnectionInfo& connInfo) override
+//  {
+//    std::shared_ptr<TSocket> sock = std::dynamic_pointer_cast<TSocket>(connInfo.transport);
+//    cout << "Incoming connection\n";
+//    cout << "\tSocketInfo: "  << sock->getSocketInfo() << "\n";
+//    cout << "\tPeerHost: "    << sock->getPeerHost() << "\n";
+//    cout << "\tPeerAddress: " << sock->getPeerAddress() << "\n";
+//    cout << "\tPeerPort: "    << sock->getPeerPort() << "\n";
+//    return new RgbaHandler;
+//  }
+//  void releaseHandler( ::shared::SharedServiceIf* handler) override {
+//    delete handler;
+//  }
+//};
 
-  /*
+
+int main() {
+//  TThreadedServer server(
+//    std::make_shared<CalculatorProcessorFactory>(std::make_shared<CalculatorCloneFactory>()),
+//    std::make_shared<TServerSocket>(9090), //port
+//    std::make_shared<TBufferedTransportFactory>(),
+//    std::make_shared<TBinaryProtocolFactory>());
+
+  
   // if you don't need per-connection state, do the following instead
   TThreadedServer server(
-    std::make_shared<CalculatorProcessor>(std::make_shared<CalculatorHandler>()),
+    std::make_shared<rgbatransformProcessor>(std::make_shared<RgbaHandler>()),
     std::make_shared<TServerSocket>(9090), //port
     std::make_shared<TBufferedTransportFactory>(),
     std::make_shared<TBinaryProtocolFactory>());
-  */
+  
 
-  /**
-   * Here are some alternate server types...
-
+  
+  // * Here are some alternate server types...
+/*
   // This server only allows one connection at a time, but spawns no threads
   TSimpleServer server(
     std::make_shared<CalculatorProcessor>(std::make_shared<CalculatorHandler>()),
