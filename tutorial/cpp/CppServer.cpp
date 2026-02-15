@@ -80,10 +80,18 @@ RgbaHandler::RgbaHandler() {
 
 }
 
+void process_list_iterator(const std::vector<rgbastruct> pixel_list) {
+  for (auto it = pixel_list.begin(); it != pixel_list.end(); ++it) {
+    std::cout << "R: " << static_cast<int>(it->r) << std::endl;
+    // Access other fields similarly: it->g, it->b, it->a
+  }
+}
+
 void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastruct>& pixel_list) {
 	
+	process_list_iterator(pixel_list);
 	
-	  for (const rgbastruct pixel : pixel_list) {
+	  for (const rgbastruct& pixel : pixel_list) {
     std::cout << "R: " << static_cast<int>(pixel.r)
               << ", G: " << static_cast<int>(pixel.g)
               << ", B: " << static_cast<int>(pixel.b)
