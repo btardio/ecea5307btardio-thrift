@@ -88,7 +88,7 @@ void process_list_iterator(const std::vector<rgbastruct> pixel_list) {
 }
 
 void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastruct>& pixel_list) {
-	
+	cout << "aaaping()" << '\n';
 	process_list_iterator(pixel_list);
 	
 	  for (const rgbastruct& pixel : pixel_list) {
