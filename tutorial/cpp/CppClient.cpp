@@ -49,10 +49,10 @@ int main() {
     transport->open();
     
 	cout << "ping rgba" << '\n';
-	rgbaclient.ping();
+	rgbaclient.ehlo();
 	
     client.ping();
-    cout << "ping()" << '\n';
+    //cout << "ping()" << '\n';
 
     cout << "1 + 1 = " << client.add(1, 1) << '\n';
 

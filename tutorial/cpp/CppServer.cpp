@@ -67,7 +67,7 @@ class RgbaHandler : public rgbatransformIf {
 public:
   RgbaHandler();
   
-  void ping() override { cout << "pong()" << '\n'; }
+  void ehlo() override { cout << "pong()" << '\n'; }
     
   void doMosul(std::vector<long int>&, const std::vector<long int>&) override;
   
@@ -87,7 +87,7 @@ class CalculatorHandler : public CalculatorIf {
 public:
   CalculatorHandler() = default;
 
-  void ping() override { cout << "ping()" << '\n'; }
+  void ping() override { cout << "aaaping()" << '\n'; }
 
   int32_t add(const int32_t n1, const int32_t n2) override {
     cout << "add(" << n1 << ", " << n2 << ")" << '\n';

@@ -157,19 +157,7 @@ service Calculator extends shared.SharedService {
  */
  
 service rgbatransform {
-   void ping(),
+   void ehlo(),
    list<i64> doMosul(1:list<i64> rgba)
 }
  
-struct MyData {
-  1: list<i64> rgba
-}
-
-struct Another {
-  1: list<i64> abgr
-}
-
-
-struct Tomato {
-  1: list<i64> abgr
-}
