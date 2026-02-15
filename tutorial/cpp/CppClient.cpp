@@ -40,7 +40,7 @@ int main() {
   std::shared_ptr<TTransport> socket(new TSocket("192.168.1.100", 9090));
   std::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
   std::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-  CalculatorClient client(protocol);
+  //CalculatorClient client(protocol);
   rgbatransformClient rgbaclient(protocol);
   
   //rgbaclient = rgbatransformClient;
@@ -51,10 +51,10 @@ int main() {
 	cout << "ping rgba" << '\n';
 	rgbaclient.ehlo();
 	
-    client.ping();
+    //client.ping();
     //cout << "ping()" << '\n';
 
-    cout << "1 + 1 = " << client.add(1, 1) << '\n';
+    //cout << "1 + 1 = " << client.add(1, 1) << '\n';
 
     Work work;
     work.op = Operation::DIVIDE;
@@ -62,7 +62,7 @@ int main() {
     work.num2 = 0;
 
     try {
-      client.calculate(1, work);
+      //client.calculate(1, work);
       cout << "Whoa? We can divide by zero!" << '\n';
     } catch (InvalidOperation& io) {
       cout << "InvalidOperation: " << io.why << '\n';
@@ -73,13 +73,13 @@ int main() {
     work.op = Operation::SUBTRACT;
     work.num1 = 15;
     work.num2 = 10;
-    int32_t diff = client.calculate(1, work);
-    cout << "15 - 10 = " << diff << '\n';
+    //int32_t diff = client.calculate(1, work);
+    //cout << "15 - 10 = " << diff << '\n';
 
     // Note that C++ uses return by reference for complex types to avoid
     // costly copy construction
     SharedStruct ss;
-    client.getStruct(ss, 1);
+    ///client.getStruct(ss, 1);
     cout << "Received log: " << ss << '\n';
 
     transport->close();
