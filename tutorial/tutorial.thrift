@@ -155,3 +155,13 @@ service Calculator extends shared.SharedService {
  * in folders with names gen-<language>. The generated code isn't too scary
  * to look at. It even has pretty indentation.
  */
+ 
+ 
+ 
+struct MyData {
+  1: list<i64> rgba
+}
+
+struct Another {
+  1: list<i64> abgr
+}
