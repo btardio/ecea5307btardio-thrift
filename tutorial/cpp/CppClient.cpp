@@ -25,6 +25,8 @@
 
 #include "../gen-cpp/Calculator.h"
 
+#include "../gen-cpp/rgbatransform.h"
+
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -32,16 +34,23 @@ using namespace apache::thrift::transport;
 
 using namespace tutorial;
 using namespace shared;
+//using namespace rgbatransform;
 
 int main() {
   std::shared_ptr<TTransport> socket(new TSocket("192.168.1.100", 9090));
   std::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
   std::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
   CalculatorClient client(protocol);
+  rgbatransformClient rgbaclient(protocol);
+  
+  //rgbaclient = rgbatransformClient;
 
   try {
     transport->open();
-
+    
+	cout << "ping rgba" << '\n';
+	rgbaclient.ping();
+	
     client.ping();
     cout << "ping()" << '\n';
 

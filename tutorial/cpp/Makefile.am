@@ -23,6 +23,8 @@ BUILT_SOURCES = gen-cpp/shared_types.cpp \
 
 noinst_LTLIBRARIES = libtutorialgencpp.la
 nodist_libtutorialgencpp_la_SOURCES = \
+    gen-cpp/rgbatransform.cpp \
+    gen-cpp/rgbatransform.h \
 	gen-cpp/Calculator.cpp \
 	gen-cpp/Calculator.h \
 	gen-cpp/SharedService.cpp \
@@ -59,7 +61,7 @@ TutorialClient_LDADD = \
 #
 # Common thrift code generation rules
 #
-gen-cpp/Calculator.cpp gen-cpp/SharedService.cpp gen-cpp/shared_types.cpp gen-cpp/tutorial_constants.cpp gen-cpp/tutorial_types.cpp: $(top_srcdir)/tutorial/tutorial.thrift
+gen-cpp/rgbatransform.cpp gen-cpp/Calculator.cpp gen-cpp/SharedService.cpp gen-cpp/shared_types.cpp gen-cpp/tutorial_constants.cpp gen-cpp/tutorial_types.cpp: $(top_srcdir)/tutorial/tutorial.thrift
 	$(THRIFT) --gen cpp -r $<
 
 AM_CPPFLAGS = $(BOOST_CPPFLAGS) $(LIBEVENT_CPPFLAGS) -I$(top_srcdir)/lib/cpp/src -Igen-cpp

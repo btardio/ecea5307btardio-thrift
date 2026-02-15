@@ -156,12 +156,20 @@ service Calculator extends shared.SharedService {
  * to look at. It even has pretty indentation.
  */
  
- 
+service rgbatransform {
+   void ping(),
+   list<i64> doMosul(1:list<i64> rgba)
+}
  
 struct MyData {
   1: list<i64> rgba
 }
 
 struct Another {
+  1: list<i64> abgr
+}
+
+
+struct Tomato {
   1: list<i64> abgr
 }

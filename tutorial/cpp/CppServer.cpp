@@ -37,6 +37,8 @@
 
 #include "../gen-cpp/Calculator.h"
 
+#include "../gen-cpp/rgbatransform.h"
+
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::concurrency;
@@ -59,6 +61,26 @@ const char *saxpy_kernel =
 "    int index = get_global_id(0);          \n"
 "    C[index] = alpha* A[index] - B[index] + 1000; \n"
 "}                                          \n";
+
+
+class RgbaHandler : public rgbatransformIf {
+public:
+  RgbaHandler();
+  
+  void ping() override { cout << "pong()" << '\n'; }
+    
+  void doMosul(std::vector<long int>&, const std::vector<long int>&) override;
+  
+  
+};
+
+RgbaHandler::RgbaHandler() {
+
+}
+
+void RgbaHandler::doMosul(std::vector<long int>& a, const std::vector<long int>& b) {
+	
+}
 
 
 class CalculatorHandler : public CalculatorIf {
