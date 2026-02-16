@@ -31,6 +31,7 @@
 #include <thrift/transport/TTransportUtils.h>
 #include <thrift/TToString.h>
 
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
@@ -80,23 +81,23 @@ RgbaHandler::RgbaHandler() {
 
 }
 
-void process_list_iterator(const std::vector<rgbastruct> pixel_list) {
-  for (auto it = pixel_list.begin(); it != pixel_list.end(); ++it) {
-    std::cout << "R: " << static_cast<int>(it->r) << std::endl;
-    // Access other fields similarly: it->g, it->b, it->a
-  }
-}
 
-void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastruct>& pixel_list) {
+void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastruct>& loadedImage) {
 	cout << "aaaping()" << '\n';
-	process_list_iterator(pixel_list);
+	//process_list_iterator(pixel_list);
 	
-	  for (const rgbastruct& pixel : pixel_list) {
-    std::cout << "R: " << static_cast<int>(pixel.r)
-              << ", G: " << static_cast<int>(pixel.g)
-              << ", B: " << static_cast<int>(pixel.b)
-              << ", A: " << static_cast<int>(pixel.a) << std::endl;
-  }
+
+
+	
+    for (std::vector<rgbastruct>::const_iterator it = loadedImage.begin(); it != loadedImage.end(); ++it) {
+		// Access members, e.g., it->r
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+	}
+
+    
 	
 	
 }

@@ -19,6 +19,7 @@
 
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <fstream>
 
@@ -41,24 +42,27 @@ using namespace shared;
 
 
 
-struct Pixel {
-    unsigned char r, g, b, a;
-};
+//struct Pixel {
+//    bool r, g, b, a;
+//};
 
 // Write an 8x8x8x8 RGBA file
-void writeRGBA(const std::string& filename, int width, int height, const std::vector<Pixel>& pixels) {
+void writeRGBA(const std::string& filename, int width, int height, const std::vector<rgbastruct>& pixels) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file for writing!" << std::endl;
         return;
     }
     // Write raw pixel data directly
-    file.write(reinterpret_cast<const char*>(pixels.data()), pixels.size() * sizeof(Pixel));
+    file.write(reinterpret_cast<const char*>(pixels.data()), pixels.size() * sizeof(rgbastruct));
     file.close();
 }
 
 // Read an 8x8x8x8 RGBA file
 std::vector<rgbastruct> readRGBA(const std::string& filename, int width, int height) {
+    
+    
+    
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file for reading!" << std::endl;
@@ -86,7 +90,7 @@ int main() {
     transport->open();
     std::vector<long int> my_vector = {1000000000L, 2000000000L, 3000000000L};
 	cout << "ping rgba" << '\n';
-	rgbaclient.doMosul(my_vector, my_vector);
+	//rgbaclient.doMosul(my_vector, my_vector);
 	
     rgbaclient.ehlo();
     
@@ -97,7 +101,22 @@ int main() {
     
     
     int width = 8, height = 8;
-    std::vector<Pixel> image(width * height, {255, 0, 0, 255}); // Red opaque pixels
+    
+    
+
+	
+    std::vector<rgbastruct> image(width * height); //(width * height, {0xFF, 0x00, 0x00, 0xFF}); // Red opaque pixels
+
+
+	for (int i = 0; i < width * height; ++i) {
+        image[i].r = (char)0xFF;
+        image[i].g = (char)0x00;
+        image[i].b = (char)0x00;
+        image[i].a = (char)0xFF;
+    }
+	
+
+
 
     // Write
     writeRGBA("test.rgba", width, height, image);
@@ -106,7 +125,13 @@ int main() {
     std::vector<rgbastruct> loadedImage = readRGBA("test.rgba", width, height);
 
     
-    
+    for (std::vector<rgbastruct>::const_iterator it = loadedImage.begin(); it != loadedImage.end(); ++it) {
+		// Access members, e.g., it->r
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+	}
 
     
     
