@@ -85,10 +85,7 @@ RgbaHandler::RgbaHandler() {
 
 void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std::vector<rgbastruct>& loadedImage, const int width, const int height) {
 	cout << "aaaping()" << '\n';
-	//process_list_iterator(pixel_list);
 	
-
-
 	
     for (std::vector<rgbastruct>::const_iterator it = loadedImage.begin(); it != loadedImage.end(); ++it) {
 		// Access members, e.g., it->r
@@ -98,111 +95,20 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
 	}
 
-
-	unsigned char *A = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
-	unsigned char *B = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
-	unsigned char *C = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
-	unsigned char *OUT = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
-	
 	for (size_t i = 0; i < loadedImage.size(); ++i) {
-		A[i] = loadedImage[i].r;
-		B[i] = loadedImage[i].g;
-		C[i] = loadedImage[i].b;
-		//OUT[i] = 0;
-	}
-	
-
-	cout << "A" << std::endl;
-
-
-
-	// Get platform and device information
-	cl_platform_id * platforms = NULL;
-	cl_uint     num_platforms;
-	//Set up the Platform
-	cl_int clStatus = clGetPlatformIDs(0, NULL, &num_platforms);
-	platforms = (cl_platform_id *)
-	malloc(sizeof(cl_platform_id)*num_platforms);
-	clStatus = clGetPlatformIDs(num_platforms, platforms, NULL);
-cout << "B" << std::endl;
-	//Get the devices list and choose the device you want to run on
-	cl_device_id     *device_list = NULL;
-	cl_uint           num_devices;
-
-	clStatus = clGetDeviceIDs( platforms[0], CL_DEVICE_TYPE_CPU, 0,NULL, &num_devices);
-	device_list = (cl_device_id *)
-	malloc(sizeof(cl_device_id)*num_devices);
-	clStatus = clGetDeviceIDs( platforms[0],CL_DEVICE_TYPE_CPU, num_devices, device_list, NULL);
-cout << "C" << std::endl;
-	// Create one OpenCL context for each device in the platform
-	cl_context context;
-	context = clCreateContext( NULL, num_devices, device_list, NULL, NULL, &clStatus);
-
-	// Create a command queue
-	cl_command_queue command_queue = clCreateCommandQueue(context, device_list[0], 0, &clStatus);
-
-	// Create memory buffers on the device for each vector
-	cl_mem A_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
-	cl_mem B_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
-	cl_mem C_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
-	cl_mem OUT_clmem = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
-cout << "D" << std::endl;
-	// Copy the Buffer A and B to the device
-	clStatus = clEnqueueWriteBuffer(command_queue, A_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), A, 0, NULL, NULL);
-	clStatus = clEnqueueWriteBuffer(command_queue, B_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), B, 0, NULL, NULL);
-	clStatus = clEnqueueWriteBuffer(command_queue, C_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), C, 0, NULL, NULL);
-
-	// Create a program from the kernel source
-	cl_program program = clCreateProgramWithSource(context, 1,(const char **)&saxpy_kernel, NULL, &clStatus);
-
-	// Build the program
-	clStatus = clBuildProgram(program, 1, device_list, NULL, NULL, NULL);
-cout << "E" << std::endl;
-	// Create the OpenCL kernel
-	cl_kernel kernel = clCreateKernel(program, "saxpy_kernel", &clStatus);
-
-	// get a new item from a queue
-	//
-	// Set the arguments of the kernel
-	clStatus = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&A_clmem);
-	clStatus = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&B_clmem);
-	clStatus = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&C_clmem);
-	clStatus = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&OUT_clmem);
-cout << "F" << std::endl;
-	// Execute the OpenCL kernel on the list
-	size_t global_size = loadedImage.size(); // Process the entire lists
-	size_t local_size = 64;           // Process one item at a time
-	clStatus = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
-
-	// Read the cl memory C_clmem on device to the host variable C
-	clStatus = clEnqueueReadBuffer(command_queue, OUT_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), OUT, 0, NULL, NULL);
-
-	// Clean up and wait for all the comands to complete.
-	clStatus = clFlush(command_queue);
-	clStatus = clFinish(command_queue);
-cout << "G" << std::endl;
-
-
-//	for(unsigned int i = 0; i < loadedImage.size(); i++)
-//		printf("%f * %f + %f = %f\n", A[i], B[i], C[i], OUT[i]);
-
-//	std::vector<rgbastruct> transformedImage(loadedImage.size());
-
-
-
-
-	for (size_t i = 0; i < loadedImage.size(); ++i) {
-		cout << "OUT[" << i << "]: " << OUT[i] << std::endl;
-		rgbastruct transformed_pixel_rgbastruct;
-
-		transformed_pixel_rgbastruct.r = OUT[i];
-		transformed_pixel_rgbastruct.g = OUT[i];
-		transformed_pixel_rgbastruct.b = OUT[i];
-
-		transformedImage.push_back(transformed_pixel_rgbastruct);
 		
+		rgbastruct transformed_pixel_rgbastruct;
+		
+		float luminance = 0.299f * (float)loadedImage[i].r + 0.587f * (float)loadedImage[i].g + 0.114f * (float)loadedImage[i].b;        
+		transformed_pixel_rgbastruct.r = (unsigned char)(luminance * 255.0f);
+		transformed_pixel_rgbastruct.g = (unsigned char)(luminance * 255.0f);
+		transformed_pixel_rgbastruct.b = (unsigned char)(luminance * 255.0f);
+		transformed_pixel_rgbastruct.a = 0xFF;
+		transformedImage.push_back(transformed_pixel_rgbastruct);
 	}
-cout << "H: " << transformedImage.size() << std::endl;
+	
+
+	cout << "H: " << transformedImage.size() << std::endl;
 
 
     for (std::vector<rgbastruct>::const_iterator it = transformedImage.begin(); it != transformedImage.end(); ++it) {
@@ -213,26 +119,12 @@ cout << "H: " << transformedImage.size() << std::endl;
 		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
 	}
 
-	//cout << std::dec << std::setw(0) << std::setfill(' ');
-	//cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
-	//cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
+	cout << std::dec << std::setw(0) << std::setfill(' ');
+	cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
+	cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
 
 	// Finally release all OpenCL allocated objects and host buffers.
-	clStatus = clReleaseKernel(kernel);
-	clStatus = clReleaseProgram(program);
-	clStatus = clReleaseMemObject(A_clmem);
-	clStatus = clReleaseMemObject(B_clmem);
-	clStatus = clReleaseMemObject(C_clmem);
-	clStatus = clReleaseMemObject(OUT_clmem);
-	clStatus = clReleaseCommandQueue(command_queue);
-	clStatus = clReleaseContext(context);
-	free(A);
-	free(B);
-	free(C);
-	free(OUT);
-	free(platforms);
-	free(device_list);
-    
+
 	
 	
 }
