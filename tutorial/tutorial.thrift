@@ -166,7 +166,7 @@ struct rgbastruct {
 service rgbatransform {
    void ehlo(),
    list<i64> doMosul(1:list<i64> rgba),
-   list<rgbastruct> doMosulA(1:list<rgbastruct> rgba)
+   list<rgbastruct> doMosulA(1:list<rgbastruct> rgba, 2:i32 width, 3:i32 height)
 }
  
 

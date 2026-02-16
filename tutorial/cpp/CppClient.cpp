@@ -135,7 +135,7 @@ int main() {
 
     
     
-    rgbaclient.doMosulA(outvector, loadedImage);
+    rgbaclient.doMosulA(outvector, loadedImage, width, height);
     
     
     
