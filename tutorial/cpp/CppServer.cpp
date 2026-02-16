@@ -196,7 +196,7 @@ cout << "G" << std::endl;
 		transformed_pixel_rgbastruct.r = OUT[i];
 		transformed_pixel_rgbastruct.g = OUT[i];
 		transformed_pixel_rgbastruct.b = OUT[i];
-		transformed_pixel_rgbastruct.a = loadedImage[i].a;
+		//transformed_pixel_rgbastruct.a = loadedImage[i].a;
 
 		transformedImage.push_back(transformed_pixel_rgbastruct);
 		
@@ -213,7 +213,7 @@ cout << "H: " << transformedImage.size() << std::endl;
 	}
 
 	cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
-	cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
+	cout << "transformedImage.size(): " << loadedImage.size() << std::endl;
 
 
 	// Finally release all OpenCL allocated objects and host buffers.
