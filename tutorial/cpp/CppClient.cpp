@@ -105,8 +105,10 @@ std::vector<rgbastruct> readAndPrint4Bytes(const std::string& filename) {
 		rgbastruct transformed_pixel_rgbastruct;
 
 		transformed_pixel_rgbastruct.r = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[0]));
-		transformed_pixel_rgbastruct.g = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[1])) << 8;
-		transformed_pixel_rgbastruct.b = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[2])) << 16;
+		transformed_pixel_rgbastruct.g = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[1]));
+		transformed_pixel_rgbastruct.b = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[2]));
+		transformed_pixel_rgbastruct.a = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[3]));
+		
 
 		out.push_back(transformed_pixel_rgbastruct);
 		
@@ -128,10 +130,6 @@ std::vector<rgbastruct> readAndPrint4Bytes(const std::string& filename) {
     return out;
 }
 
-
-//struct Pixel {
-//    bool r, g, b, a;
-//};
 
 // Write an 8x8x8x8 RGBA file
 void writeRGBA(const std::string& filename, int width, int height, const std::vector<rgbastruct>& pixels) {
@@ -183,119 +181,116 @@ int main(int argc, char* argv[]) {
 	
 	
 	
-  std::shared_ptr<TTransport> socket(new TSocket("192.168.1.100", 9090));
-  std::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-  std::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-  //CalculatorClient client(protocol);
-  rgbatransformClient rgbaclient(protocol);
+    std::shared_ptr<TTransport> socket(new TSocket("192.168.1.100", 9090));
+    std::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+    std::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+    //CalculatorClient client(protocol);
+    rgbatransformClient rgbaclient(protocol);
   
-  //rgbaclient = rgbatransformClient;
-
-  try {
-    transport->open();
-    std::vector<long int> my_vector = {1000000000L, 2000000000L, 3000000000L};
-	cout << "ping rgba" << '\n';
-	//rgbaclient.doMosul(my_vector, my_vector);
-	
-    rgbaclient.ehlo();
-    
-    
-    
-    std::vector<rgbastruct> outvector;
-    
-    
-    
-    int width = 8, height = 8;
-    
-    
-
-	
-    std::vector<rgbastruct> image(width * height); //(width * height, {0xFF, 0x00, 0x00, 0xFF}); // Red opaque pixels
-
-
-	for (int i = 0; i < width * height; ++i) {
-        image[i].r = (char)0xFF;
-        image[i].g = (char)0x00;
-        image[i].b = (char)0x00;
-        image[i].a = (char)0xFF;
-    }
-	
-
-
-
-    // Write
-    writeRGBA("test.rgba", width, height, image);
-
-	std::vector<rgbastruct> a_loadedImage = readAndPrint4Bytes(a_filename); //readRGBA("input.rgba", width, height);
-
-    // Read
-    std::vector<rgbastruct> loadedImage = readRGBA("test.rgba", width, height);
-
-    
-    for (std::vector<rgbastruct>::const_iterator it = loadedImage.begin(); it != loadedImage.end(); ++it) {
-		// Access members, e.g., it->r
-//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
-//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
-//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
-//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
-	}
-
-    
-    cout << a_width << "a_width\n";
-    cout << a_height << "a_heigth\n";
-    cout << a_filename << "a_filename\n";
-    rgbaclient.doMosulA(outvector, a_loadedImage, a_width, a_height);
-    
-    
-    
-    
-    
-    
-	for (std::vector<rgbastruct>::const_iterator it = outvector.begin(); it != outvector.end(); ++it) {
-		// Access members, e.g., it->r
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
-	}
-    
-    
-    writeRGBA("/images/transformed_image_" + filename_create() + ".rgba", a_width, a_height, outvector);
-    
-    
-    
-    //cout << "ping()" << '\n';
-
-    //cout << "1 + 1 = " << client.add(1, 1) << '\n';
-
-    Work work;
-    work.op = Operation::DIVIDE;
-    work.num1 = 1;
-    work.num2 = 0;
+    //rgbaclient = rgbatransformClient;
 
     try {
-      //client.calculate(1, work);
-      cout << "Whoa? We can divide by zero!" << '\n';
-    } catch (InvalidOperation& io) {
-      cout << "InvalidOperation: " << io.why << '\n';
-      // or using generated operator<<: cout << io << '\n';
-      // or by using std::exception native method what(): cout << io.what() << '\n';
+		transport->open();
+		std::vector<long int> my_vector = {1000000000L, 2000000000L, 3000000000L};
+		cout << "ping rgba" << '\n';
+	
+		rgbaclient.ehlo();
+    
+		std::vector<rgbastruct> outvector;
+		
+		
+		
+		int width = 8, height = 8;
+		
+		
+
+		
+		std::vector<rgbastruct> image(width * height); //(width * height, {0xFF, 0x00, 0x00, 0xFF}); // Red opaque pixels
+
+
+		for (int i = 0; i < width * height; ++i) {
+			image[i].r = (char)0xFF;
+			image[i].g = (char)0x00;
+			image[i].b = (char)0x00;
+			image[i].a = (char)0xFF;
+		}
+		
+
+
+
+		// Write
+		writeRGBA("test.rgba", width, height, image);
+
+		std::vector<rgbastruct> a_loadedImage = readAndPrint4Bytes(a_filename); //readRGBA("input.rgba", width, height);
+
+		// Read
+		//std::vector<rgbastruct> loadedImage = readRGBA("test.rgba", width, height);
+
+		
+		for (std::vector<rgbastruct>::const_iterator it = a_loadedImage.begin(); it != a_loadedImage.end(); ++it) {
+			// Access members, e.g., it->r
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+		}
+
+		
+		cout << a_width << "a_width\n";
+		cout << a_height << "a_heigth\n";
+		cout << a_filename << "a_filename\n";
+		rgbaclient.doMosulA(outvector, a_loadedImage, a_width, a_height);
+		
+		
+		
+		
+		
+		
+		for (std::vector<rgbastruct>::const_iterator it = outvector.begin(); it != outvector.end(); ++it) {
+			// Access members, e.g., it->r
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+		}
+		
+		
+		writeRGBA("/images/transformed_image_" + filename_create() + ".rgba", a_width, a_height, outvector);
+		
+		
+		
+		//cout << "ping()" << '\n';
+
+		//cout << "1 + 1 = " << client.add(1, 1) << '\n';
+
+		Work work;
+		work.op = Operation::DIVIDE;
+		work.num1 = 1;
+		work.num2 = 0;
+
+		try {
+		  //client.calculate(1, work);
+		  cout << "Whoa? We can divide by zero!" << '\n';
+		} catch (InvalidOperation& io) {
+		  cout << "InvalidOperation: " << io.why << '\n';
+		  // or using generated operator<<: cout << io << '\n';
+		  // or by using std::exception native method what(): cout << io.what() << '\n';
+		}
+
+		work.op = Operation::SUBTRACT;
+		work.num1 = 15;
+		work.num2 = 10;
+		//int32_t diff = client.calculate(1, work);
+		//cout << "15 - 10 = " << diff << '\n';
+
+		// Note that C++ uses return by reference for complex types to avoid
+		// costly copy construction
+		SharedStruct ss;
+		///client.getStruct(ss, 1);
+		cout << "Received log: " << ss << '\n';
+
+		transport->close();
+    } catch (TException& tx) {
+      cout << "ERROR: " << tx.what() << '\n';
     }
-
-    work.op = Operation::SUBTRACT;
-    work.num1 = 15;
-    work.num2 = 10;
-    //int32_t diff = client.calculate(1, work);
-    //cout << "15 - 10 = " << diff << '\n';
-
-    // Note that C++ uses return by reference for complex types to avoid
-    // costly copy construction
-    SharedStruct ss;
-    ///client.getStruct(ss, 1);
-    cout << "Received log: " << ss << '\n';
-
-    transport->close();
-  } catch (TException& tx) {
-    cout << "ERROR: " << tx.what() << '\n';
-  }
 }
