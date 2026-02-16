@@ -176,7 +176,7 @@ cout << "F" << std::endl;
 	clStatus = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
 
 	// Read the cl memory C_clmem on device to the host variable C
-	clStatus = clEnqueueReadBuffer(command_queue, OUT_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), C, 0, NULL, NULL);
+	clStatus = clEnqueueReadBuffer(command_queue, OUT_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), OUT, 0, NULL, NULL);
 
 	// Clean up and wait for all the comands to complete.
 	clStatus = clFlush(command_queue);
@@ -187,15 +187,20 @@ cout << "G" << std::endl;
 //	for(unsigned int i = 0; i < loadedImage.size(); i++)
 //		printf("%f * %f + %f = %f\n", A[i], B[i], C[i], OUT[i]);
 
+//	std::vector<rgbastruct> transformedImage(loadedImage.size());
 
+	for (size_t i = 0; i < loadedImage.size(); ++i) {
 
-	for (size_t i = 0; i < transformedImage.size(); ++i) {
-		transformedImage[i].r = OUT[i];
-		transformedImage[i].g = OUT[i];
-		transformedImage[i].b = OUT[i];
+		rgbastruct transformed_pixel_rgbastruct;
+
+		transformed_pixel_rgbastruct.r = OUT[i];
+		transformed_pixel_rgbastruct.g = OUT[i];
+		transformed_pixel_rgbastruct.b = OUT[i];
+
+		transformedImage.push_back(transformed_pixel_rgbastruct);
 		
 	}
-cout << "H" << std::endl;
+cout << "H: " << transformedImage.size() << std::endl;
 
 
     for (std::vector<rgbastruct>::const_iterator it = transformedImage.begin(); it != transformedImage.end(); ++it) {
