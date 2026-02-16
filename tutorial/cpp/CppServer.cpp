@@ -198,7 +198,7 @@ cout << "G" << std::endl;
 cout << "H" << std::endl;
 
 
-    for (std::vector<rgbastruct>::const_iterator it = transformedImage.begin(); it != loadedImage.end(); ++it) {
+    for (std::vector<rgbastruct>::const_iterator it = transformedImage.begin(); it != transformedImage.end(); ++it) {
 		// Access members, e.g., it->r
 		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
 		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
