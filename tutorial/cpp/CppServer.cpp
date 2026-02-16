@@ -109,7 +109,7 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 		A[i] = loadedImage[i].r;
 		B[i] = loadedImage[i].g;
 		C[i] = loadedImage[i].b;
-		//OUT[i] = 0;
+		OUT[i] = 0;
 	}
 	
 
@@ -196,7 +196,6 @@ cout << "G" << std::endl;
 		transformed_pixel_rgbastruct.r = OUT[i];
 		transformed_pixel_rgbastruct.g = OUT[i];
 		transformed_pixel_rgbastruct.b = OUT[i];
-		//transformed_pixel_rgbastruct.a = loadedImage[i].a;
 
 		transformedImage.push_back(transformed_pixel_rgbastruct);
 		
@@ -211,10 +210,10 @@ cout << "H: " << transformedImage.size() << std::endl;
 		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
 		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
 	}
-	cout << std::dec << std::setw(0) << std::setfill('~');
-	cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
-	cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
 
+	//cout << std::dec << std::setw(0) << std::setfill(' ');
+	//cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
+	//cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
 
 	// Finally release all OpenCL allocated objects and host buffers.
 	clStatus = clReleaseKernel(kernel);
