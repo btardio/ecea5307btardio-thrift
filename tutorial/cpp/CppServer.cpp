@@ -63,7 +63,7 @@ const char *saxpy_kernel =
 "    int index = get_global_id(0);          \n"
 "    float luminance = 128.0f; //0.299f * A[index] + 0.587f * B[index] + 0.114f * C[index];                                       \n"
 "    OUT[index] = (uchar)luminance; \n"
-"    OUT[index] = A[index]; \n"
+"    OUT[index] = 'a'; // A[index]; \n"
 "}                                          \n";
 
 //convert_uchar(convert_float(A[index] + B[index] + C[index]) / 255.0f); \n"
