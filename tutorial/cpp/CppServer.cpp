@@ -54,14 +54,14 @@ using namespace shared;
 const char *saxpy_kernel =
 "__kernel                                   \n"
 "void saxpy_kernel(                         \n"
-"                  __global float *A,       \n"
-"                  __global float *B,       \n"
-"                  __global float *C,       \n"
-"                  __global float *OUT)       \n"
+"                  __global uchar *A,       \n"
+"                  __global uchar *B,       \n"
+"                  __global uchar *C,       \n"
+"                  __global uchar *OUT)       \n"
 "{                                          \n"
 "    //Get the index of the work-item       \n"
 "    int index = get_global_id(0);          \n"
-"    OUT[index] = A[index] + B[index] + C[index]; \n"
+"    OUT[index] = convert_uchar(convert_float(A[index] + B[index] + C[index]) / 255.0f); \n"
 "}                                          \n";
 
 
@@ -83,7 +83,7 @@ RgbaHandler::RgbaHandler() {
 }
 
 
-void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastruct>& loadedImage, const int width, const int height) {
+void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std::vector<rgbastruct>& loadedImage, const int width, const int height) {
 	cout << "aaaping()" << '\n';
 	//process_list_iterator(pixel_list);
 	
@@ -99,10 +99,10 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastr
 	}
 
 
-	float *A = (float*)malloc(sizeof(float)*loadedImage.size());
-	float *B = (float*)malloc(sizeof(float)*loadedImage.size());
-	float *C = (float*)malloc(sizeof(float)*loadedImage.size());
-	float *OUT = (float*)malloc(sizeof(float)*loadedImage.size());
+	unsigned char *A = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
+	unsigned char *B = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
+	unsigned char *C = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
+	unsigned char *OUT = (unsigned char*)malloc(sizeof(unsigned char)*loadedImage.size());
 	
 	for (size_t i = 0; i < loadedImage.size(); ++i) {
 		A[i] = loadedImage[i].r;
@@ -142,15 +142,15 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastr
 	cl_command_queue command_queue = clCreateCommandQueue(context, device_list[0], 0, &clStatus);
 
 	// Create memory buffers on the device for each vector
-	cl_mem A_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(float), NULL, &clStatus);
-	cl_mem B_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(float), NULL, &clStatus);
-	cl_mem C_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(float), NULL, &clStatus);
-	cl_mem OUT_clmem = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(float), NULL, &clStatus);
+	cl_mem A_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
+	cl_mem B_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
+	cl_mem C_clmem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
+	cl_mem OUT_clmem = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
 
 	// Copy the Buffer A and B to the device
-	clStatus = clEnqueueWriteBuffer(command_queue, A_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(float), A, 0, NULL, NULL);
-	clStatus = clEnqueueWriteBuffer(command_queue, B_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(float), B, 0, NULL, NULL);
-	clStatus = clEnqueueWriteBuffer(command_queue, C_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(float), C, 0, NULL, NULL);
+	clStatus = clEnqueueWriteBuffer(command_queue, A_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(unsigned char), A, 0, NULL, NULL);
+	clStatus = clEnqueueWriteBuffer(command_queue, B_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(unsigned char), B, 0, NULL, NULL);
+	clStatus = clEnqueueWriteBuffer(command_queue, C_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(unsigned char), C, 0, NULL, NULL);
 
 	// Create a program from the kernel source
 	cl_program program = clCreateProgramWithSource(context, 1,(const char **)&saxpy_kernel, NULL, &clStatus);
@@ -175,7 +175,7 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastr
 	clStatus = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
 
 	// Read the cl memory C_clmem on device to the host variable C
-	clStatus = clEnqueueReadBuffer(command_queue, OUT_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(float), C, 0, NULL, NULL);
+	clStatus = clEnqueueReadBuffer(command_queue, OUT_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), C, 0, NULL, NULL);
 
 	// Clean up and wait for all the comands to complete.
 	clStatus = clFlush(command_queue);
@@ -183,11 +183,27 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastr
 
 
 
-	for(unsigned int i = 0; i < loadedImage.size(); i++)
-		printf("%f * %f + %f = %f\n", A[i], B[i], C[i], OUT[i]);
+//	for(unsigned int i = 0; i < loadedImage.size(); i++)
+//		printf("%f * %f + %f = %f\n", A[i], B[i], C[i], OUT[i]);
 
 
 
+	for (size_t i = 0; i < transformedImage.size(); ++i) {
+		transformedImage[i].r = OUT[i];
+		transformedImage[i].g = OUT[i];
+		transformedImage[i].b = OUT[i];
+		
+	}
+
+
+
+    for (std::vector<rgbastruct>::const_iterator it = transformedImage.begin(); it != loadedImage.end(); ++it) {
+		// Access members, e.g., it->r
+		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+	}
 
 
 
@@ -197,11 +213,13 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& a, const std::vector<rgbastr
 	clStatus = clReleaseMemObject(A_clmem);
 	clStatus = clReleaseMemObject(B_clmem);
 	clStatus = clReleaseMemObject(C_clmem);
+	clStatus = clReleaseMemObject(OUT_clmem);
 	clStatus = clReleaseCommandQueue(command_queue);
 	clStatus = clReleaseContext(context);
 	free(A);
 	free(B);
 	free(C);
+	free(OUT);
 	free(platforms);
 	free(device_list);
     
