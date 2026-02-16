@@ -61,7 +61,7 @@ const char *saxpy_kernel =
 "{                                          \n"
 "    //Get the index of the work-item       \n"
 "    int index = get_global_id(0);          \n"
-"    OUT[index] = 'a';                      \n"
+"    OUT[index] = 0xAD;                     \n"
 "}                                          \n";
 
 //convert_uchar(convert_float(A[index] + B[index] + C[index]) / 255.0f); \n"
@@ -108,7 +108,7 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 		A[i] = loadedImage[i].r;
 		B[i] = loadedImage[i].g;
 		C[i] = loadedImage[i].b;
-		OUT[i] = 0;
+		//OUT[i] = 0;
 	}
 	
 
