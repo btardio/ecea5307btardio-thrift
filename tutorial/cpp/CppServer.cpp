@@ -54,16 +54,14 @@ using namespace shared;
 const char *saxpy_kernel =
 "__kernel                                   \n"
 "void saxpy_kernel(                         \n"
-"                  __global const uchar *A,       \n"
-"                  __global const uchar *B,       \n"
-"                  __global const uchar *C,       \n"
-"                  __global uchar *OUT)       \n"
+"                  __global const uchar *A, \n"
+"                  __global const uchar *B, \n"
+"                  __global const uchar *C, \n"
+"                  __global uchar *OUT)     \n"
 "{                                          \n"
 "    //Get the index of the work-item       \n"
 "    int index = get_global_id(0);          \n"
-"    float luminance = 128.0f; //0.299f * A[index] + 0.587f * B[index] + 0.114f * C[index];                                       \n"
-"    OUT[index] = (uchar)luminance; \n"
-"    OUT[index] = 'a'; // A[index]; \n"
+"    OUT[index] = 'a';                      \n"
 "}                                          \n";
 
 //convert_uchar(convert_float(A[index] + B[index] + C[index]) / 255.0f); \n"
@@ -190,8 +188,11 @@ cout << "G" << std::endl;
 
 //	std::vector<rgbastruct> transformedImage(loadedImage.size());
 
-	for (size_t i = 0; i < loadedImage.size(); ++i) {
 
+
+
+	for (size_t i = 0; i < loadedImage.size(); ++i) {
+		cout << "OUT[" << i << "]: " << OUT[i] << std::endl;
 		rgbastruct transformed_pixel_rgbastruct;
 
 		transformed_pixel_rgbastruct.r = OUT[i];
