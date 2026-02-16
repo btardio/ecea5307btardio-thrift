@@ -148,9 +148,9 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 	cl_mem OUT_clmem = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR, loadedImage.size() * sizeof(unsigned char), NULL, &clStatus);
 
 	// Copy the Buffer A and B to the device
-	clStatus = clEnqueueWriteBuffer(command_queue, A_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(unsigned char), A, 0, NULL, NULL);
-	clStatus = clEnqueueWriteBuffer(command_queue, B_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(unsigned char), B, 0, NULL, NULL);
-	clStatus = clEnqueueWriteBuffer(command_queue, C_clmem, CL_TRUE, 0, VECTOR_SIZE * sizeof(unsigned char), C, 0, NULL, NULL);
+	clStatus = clEnqueueWriteBuffer(command_queue, A_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), A, 0, NULL, NULL);
+	clStatus = clEnqueueWriteBuffer(command_queue, B_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), B, 0, NULL, NULL);
+	clStatus = clEnqueueWriteBuffer(command_queue, C_clmem, CL_TRUE, 0, loadedImage.size() * sizeof(unsigned char), C, 0, NULL, NULL);
 
 	// Create a program from the kernel source
 	cl_program program = clCreateProgramWithSource(context, 1,(const char **)&saxpy_kernel, NULL, &clStatus);
@@ -170,7 +170,7 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 	clStatus = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&OUT_clmem);
 
 	// Execute the OpenCL kernel on the list
-	size_t global_size = VECTOR_SIZE; // Process the entire lists
+	size_t global_size = loadedImage.size(); // Process the entire lists
 	size_t local_size = 64;           // Process one item at a time
 	clStatus = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, &local_size, 0, NULL, NULL);
 
