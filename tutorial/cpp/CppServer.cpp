@@ -211,9 +211,9 @@ cout << "H: " << transformedImage.size() << std::endl;
 		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
 		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
 	}
-
+	cout << std::dec << std::setw(0) << std::setfill('~');
 	cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
-	cout << "transformedImage.size(): " << loadedImage.size() << std::endl;
+	cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
 
 
 	// Finally release all OpenCL allocated objects and host buffers.
