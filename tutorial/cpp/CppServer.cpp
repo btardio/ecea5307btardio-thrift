@@ -109,7 +109,7 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 		A[i] = loadedImage[i].r;
 		B[i] = loadedImage[i].g;
 		C[i] = loadedImage[i].b;
-		OUT[i] = 0;
+		//OUT[i] = 0;
 	}
 	
 
