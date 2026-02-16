@@ -61,7 +61,7 @@ const char *saxpy_kernel =
 "{                                          \n"
 "    //Get the index of the work-item       \n"
 "    int index = get_global_id(0);          \n"
-"    float luminance = 0.299f * A[index] + 0.587f * B[index] + 0.114f * C[index];                                       \n"
+"    float luminance = 128.0f; //0.299f * A[index] + 0.587f * B[index] + 0.114f * C[index];                                       \n"
 "    OUT[index] = (uchar)luminance; \n"
 "}                                          \n";
 
