@@ -84,44 +84,44 @@ RgbaHandler::RgbaHandler() {
 
 
 void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std::vector<rgbastruct>& loadedImage, const int width, const int height) {
-	cout << "aaaping()" << '\n';
+	//cout << "aaaping()" << '\n';
 	
 	
-    for (std::vector<rgbastruct>::const_iterator it = loadedImage.begin(); it != loadedImage.end(); ++it) {
+    //for (std::vector<rgbastruct>::const_iterator it = loadedImage.begin(); it != loadedImage.end(); ++it) {
 		// Access members, e.g., it->r
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
-	}
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+	//}
 
 	for (size_t i = 0; i < loadedImage.size(); ++i) {
 		
 		rgbastruct transformed_pixel_rgbastruct;
 		
 		float luminance = 0.299f * (float)loadedImage[i].r + 0.587f * (float)loadedImage[i].g + 0.114f * (float)loadedImage[i].b;        
-		transformed_pixel_rgbastruct.r = loadedImage[i].r; // (unsigned char)(luminance * 255.0f); //loadedImage[i].r;
-		transformed_pixel_rgbastruct.g = loadedImage[i].g; // (unsigned char)(luminance * 255.0f); //loadedImage[i].g;
-		transformed_pixel_rgbastruct.b = loadedImage[i].b; // (unsigned char)(luminance * 255.0f); //loadedImage[i].b;
+		transformed_pixel_rgbastruct.r = (unsigned char)(luminance * 255.0f); //loadedImage[i].r;
+		transformed_pixel_rgbastruct.g = (unsigned char)(luminance * 255.0f); //loadedImage[i].g;
+		transformed_pixel_rgbastruct.b = (unsigned char)(luminance * 255.0f); //loadedImage[i].b;
 		transformed_pixel_rgbastruct.a = 0xFF;
 		transformedImage.push_back(transformed_pixel_rgbastruct);
 	}
 	
 
-	cout << "H: " << transformedImage.size() << std::endl;
+	//cout << "H: " << transformedImage.size() << std::endl;
 
 
-    for (std::vector<rgbastruct>::const_iterator it = transformedImage.begin(); it != transformedImage.end(); ++it) {
+    //for (std::vector<rgbastruct>::const_iterator it = transformedImage.begin(); it != transformedImage.end(); ++it) {
 		// Access members, e.g., it->r
-		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
-		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
-		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
-		cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
-	}
+		//cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+		//cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+		//cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+		//cout << "transformedImage: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+	//}
 
-	cout << std::dec << std::setw(0) << std::setfill(' ');
-	cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
-	cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
+	//cout << std::dec << std::setw(0) << std::setfill(' ');
+	//cout << "loadedImage.size(): " << loadedImage.size() << std::endl;
+	//cout << "transformedImage.size(): " << transformedImage.size() << std::endl;
 
 	// Finally release all OpenCL allocated objects and host buffers.
 
@@ -384,23 +384,23 @@ int main() {
 
   
   // if you don't need per-connection state, do the following instead
-  TThreadedServer server(
-    std::make_shared<rgbatransformProcessor>(std::make_shared<RgbaHandler>()),
-    std::make_shared<TServerSocket>(9090), //port
-    std::make_shared<TBufferedTransportFactory>(),
-    std::make_shared<TBinaryProtocolFactory>());
+  //TThreadedServer server(
+  //  std::make_shared<rgbatransformProcessor>(std::make_shared<RgbaHandler>()),
+  //  std::make_shared<TServerSocket>(9090), //port
+  //  std::make_shared<TBufferedTransportFactory>(),
+  //  std::make_shared<TBinaryProtocolFactory>());
   
 
   
   // * Here are some alternate server types...
-/*
+
   // This server only allows one connection at a time, but spawns no threads
   TSimpleServer server(
-    std::make_shared<CalculatorProcessor>(std::make_shared<CalculatorHandler>()),
+    std::make_shared<rgbatransformProcessor>(std::make_shared<RgbaHandler>()),
     std::make_shared<TServerSocket>(9090),
     std::make_shared<TBufferedTransportFactory>(),
     std::make_shared<TBinaryProtocolFactory>());
-
+/*
   const int workerCount = 4;
 
   std::shared_ptr<ThreadManager> threadManager =
