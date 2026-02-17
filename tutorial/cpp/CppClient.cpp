@@ -27,6 +27,8 @@
 #include <thrift/transport/TSocket.h>
 #include <thrift/transport/TTransportUtils.h>
 
+#include <arpa/inet.h>
+
 #include "../gen-cpp/Calculator.h"
 
 #include "../gen-cpp/rgbatransform.h"
@@ -68,17 +70,17 @@ std::string filename_create(){
 }
 
 
-std::vector<rgbastruct> readAndPrint4Bytes(const std::string& filename) {
+std::vector<rgbastruct> readAndPrint4Bytes(std::istream& inputFile) {//const std::string& filename) {
     // Open the file in binary mode
     
     std::vector<rgbastruct> out;
     
-    std::ifstream inputFile(filename, std::ios::in | std::ios::binary);
+    //std::ifstream inputFile(filename, std::ios::in | std::ios::binary);
 
-    if (!inputFile.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return out;
-    }
+//    if (!inputFile.is_open()) {
+//        std::cerr << "Error opening file: " << filename << std::endl;
+//        return out;
+//    }
 
     // Buffer to hold 4 bytes
     unsigned char buffer[4];
@@ -126,21 +128,73 @@ std::vector<rgbastruct> readAndPrint4Bytes(const std::string& filename) {
         std::cerr << "Error reading file!" << std::endl;
     }
 
-    inputFile.close();
+    //inputFile.close();
     return out;
 }
 
 
 // Write an 8x8x8x8 RGBA file
-void writeRGBA(const std::string& filename, int width, int height, const std::vector<rgbastruct>& pixels) {
+void writeRGBA(const std::string& filename, uint32_t width, uint32_t height, const std::vector<rgbastruct>& pixels) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file for writing!" << std::endl;
         return;
     }
+    uint32_t big_endian_value_width = htonl(width);
+    uint32_t big_endian_value_height = htonl(height);
+    file.write(
+        reinterpret_cast<const char*>(&big_endian_value_width), 
+        sizeof(width)
+        
+    ); //
+
+	file.write(
+        reinterpret_cast<const char*>(&big_endian_value_height), 
+        sizeof(height)
+    ); //
+
+
+	cout << "not writing more than two unsigned integers\n";
     // Write raw pixel data directly
-    file.write(reinterpret_cast<const char*>(pixels.data()), pixels.size() * sizeof(rgbastruct));
+	//file.write(reinterpret_cast<const char*>(pixels.data()), pixels.size() * sizeof(rgbastruct));
+    
+    
+    
+    
+	for (std::vector<rgbastruct>::const_iterator it = pixels.begin(); it != pixels.end(); ++it) {
+		unsigned char r,g,b,a;
+		
+		r = static_cast<unsigned char>(it->r);
+		g = static_cast<unsigned char>(it->g);
+		b = static_cast<unsigned char>(it->b);
+		a = static_cast<unsigned char>(it->a);
+		
+		file.write(
+			reinterpret_cast<const char*>(&r), 
+			sizeof(r)
+		);
+		file.write(
+			reinterpret_cast<const char*>(&g), 
+			sizeof(g)
+		);
+		file.write(
+			reinterpret_cast<const char*>(&b), 
+			sizeof(b)
+		);
+		file.write(
+			reinterpret_cast<const char*>(&a), 
+			sizeof(a)
+		);
+		// Access members, e.g., it->r
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
+		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+	}
+    
+    
     file.close();
+    
 }
 
 // Read an 8x8x8x8 RGBA file
@@ -161,21 +215,39 @@ std::vector<rgbastruct> readRGBA(const std::string& filename, int width, int hei
 
 
 
+// Function to read a 32-bit Big Endian integer
+uint32_t readBigEndian32() {
+    uint8_t bytes[4];
+    // Read 4 bytes from stdin
+    std::cin.read(reinterpret_cast<char*>(bytes), 4);
+    
+    // Combine bytes: MSB first (index 0)
+    return (static_cast<uint32_t>(bytes[0]) << 24) |
+           (static_cast<uint32_t>(bytes[1]) << 16) |
+           (static_cast<uint32_t>(bytes[2]) << 8)  |
+           (static_cast<uint32_t>(bytes[3]));
+}
 
-int main(int argc, char* argv[]) {
+int main() { // int argc, char* argv[]) {
+	int argc;
+	char* argv[3];
 	
-	
-	
-    if (argc < 4) {
-        std::cerr << "Usage: " << argv[0] << " <string> <width> <height>" << std::endl;
-        return 1;
-    }
+	if (!std::cin) {
+		std::cout << "stdin error\n";
+		return -1;
+	}
+		
+    uint32_t a_width = readBigEndian32();
+    uint32_t a_height = readBigEndian32();
+    
+    
+        
+    //std::cout << "Read value width: " << value << std::endl;
+    //std::cout << "Read value height: " << value << std::endl;
+    
 
-    std::string a_filename = argv[1]; // Get string
-    int a_width = std::stoi(argv[2]); // Convert width
-    int a_height = std::stoi(argv[3]); // Convert height
 
-    std::cout << "Name: " << a_filename << ", Width: " << a_width << ", Height: " << a_height << std::endl;
+    std::cout << "Width: " << a_width << ", Height: " << a_height << std::endl;
 
 	
 	
@@ -221,7 +293,7 @@ int main(int argc, char* argv[]) {
 		// Write
 		writeRGBA("test.rgba", width, height, image);
 
-		std::vector<rgbastruct> a_loadedImage = readAndPrint4Bytes(a_filename); //readRGBA("input.rgba", width, height);
+		std::vector<rgbastruct> a_loadedImage = readAndPrint4Bytes(std::cin); //readRGBA("input.rgba", width, height);
 
 		// Read
 		//std::vector<rgbastruct> loadedImage = readRGBA("test.rgba", width, height);
@@ -238,7 +310,7 @@ int main(int argc, char* argv[]) {
 		
 		cout << a_width << "a_width\n";
 		cout << a_height << "a_heigth\n";
-		cout << a_filename << "a_filename\n";
+		//cout << a_filename << "a_filename\n";
 		rgbaclient.doMosulA(outvector, a_loadedImage, a_width, a_height);
 		
 		
@@ -255,18 +327,13 @@ int main(int argc, char* argv[]) {
 		}
 		
 		
-		writeRGBA("/images/transformed_image_" + filename_create() + ".rgba", a_width, a_height, outvector);
+		writeRGBA("/out_transformed_image.rgba", a_width, a_height, outvector);
 		
 		
 		
 		//cout << "ping()" << '\n';
 
 		//cout << "1 + 1 = " << client.add(1, 1) << '\n';
-
-		Work work;
-		work.op = Operation::DIVIDE;
-		work.num1 = 1;
-		work.num2 = 0;
 
 		try {
 		  //client.calculate(1, work);
@@ -276,18 +343,6 @@ int main(int argc, char* argv[]) {
 		  // or using generated operator<<: cout << io << '\n';
 		  // or by using std::exception native method what(): cout << io.what() << '\n';
 		}
-
-		work.op = Operation::SUBTRACT;
-		work.num1 = 15;
-		work.num2 = 10;
-		//int32_t diff = client.calculate(1, work);
-		//cout << "15 - 10 = " << diff << '\n';
-
-		// Note that C++ uses return by reference for complex types to avoid
-		// costly copy construction
-		SharedStruct ss;
-		///client.getStruct(ss, 1);
-		cout << "Received log: " << ss << '\n';
 
 		transport->close();
     } catch (TException& tx) {
