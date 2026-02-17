@@ -100,9 +100,9 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 		rgbastruct transformed_pixel_rgbastruct;
 		
 		float luminance = 0.299f * (float)loadedImage[i].r + 0.587f * (float)loadedImage[i].g + 0.114f * (float)loadedImage[i].b;        
-		transformed_pixel_rgbastruct.r = (unsigned char)(luminance * 255.0f); //loadedImage[i].r;
-		transformed_pixel_rgbastruct.g = (unsigned char)(luminance * 255.0f); //loadedImage[i].g;
-		transformed_pixel_rgbastruct.b = (unsigned char)(luminance * 255.0f); //loadedImage[i].b;
+		transformed_pixel_rgbastruct.r = loadedImage[i].r; // (unsigned char)(luminance * 255.0f); //loadedImage[i].r;
+		transformed_pixel_rgbastruct.g = loadedImage[i].g; // (unsigned char)(luminance * 255.0f); //loadedImage[i].g;
+		transformed_pixel_rgbastruct.b = loadedImage[i].b; // (unsigned char)(luminance * 255.0f); //loadedImage[i].b;
 		transformed_pixel_rgbastruct.a = 0xFF;
 		transformedImage.push_back(transformed_pixel_rgbastruct);
 	}
