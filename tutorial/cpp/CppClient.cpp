@@ -1,20 +1,19 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+/* 
+ * ECEA 5307
+ * Brandon Tardio
+ * https://github.com/btardio/final-project-btardio
+ * 
+ * This file is a thrift client that runs in docker
+ * it is compiled using the following command in docker:
+ * 
+ * docker build -f ./Dockerfile_client -t thriftclient . && docker container run  -it thriftclient | python3 rgba_to_image.py
+ * 
+ * If the RPI server is running at address 192.168.1.100 it will produce 
+ * \x00 char output.
+ * 
+ * The container run command uses the python script and the untitled.png
+ * 
+ * The file is read from stdin.
  */
 
 
@@ -40,22 +39,13 @@ using namespace apache::thrift::transport;
 
 using namespace tutorial;
 using namespace shared;
-//using namespace rgbatransform;
 
 std::string filename_create(){
-	    // 1. Seed the random number generator once per program run
+	// 1. Seed the random number generator once per program run
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     // 2. Generate a random number.
-    // To ensure the number can potentially reach 10 digits, we need a large range.
-    // We can use a modulo with a large number (e.g., 1 billion) or just use the full rand() value.
-    // Note: RAND_MAX may be as small as 32767. For a 10-digit number, it is recommended to use
-    // the C++11 <random> library for better random numbers and larger ranges.
-    // If you must use `rand()`, be aware of its limitations.
     long long randomNum = rand(); // May be small
-
-    // A more suitable range for a 10-digit number might involve combining rand() calls if RAND_MAX is small,
-    // or using the C++11 random library. For this example, we proceed with the assumption of a sufficiently large number.
 
     // 3. Convert to a string with leading zeros using stringstream
     std::stringstream ss;
@@ -71,16 +61,8 @@ std::string filename_create(){
 
 
 std::vector<rgbastruct> readAndPrint4Bytes(std::istream& inputFile) {//const std::string& filename) {
-    // Open the file in binary mode
-    
-    std::vector<rgbastruct> out;
-    
-    //std::ifstream inputFile(filename, std::ios::in | std::ios::binary);
 
-//    if (!inputFile.is_open()) {
-//        std::cerr << "Error opening file: " << filename << std::endl;
-//        return out;
-//    }
+    std::vector<rgbastruct> out;
 
     // Buffer to hold 4 bytes
     unsigned char buffer[4];
@@ -100,10 +82,6 @@ std::vector<rgbastruct> readAndPrint4Bytes(std::istream& inputFile) {//const std
         // Print the value to the terminal (in hexadecimal for clarity)
         std::cout << "Read value (hex): 0x" << std::hex << std::setw(8) << std::setfill('0') << value << std::dec << std::endl;
         
-        
-		//std::vector<rgbastruct> image(width * height); //(width * height, {0xFF, 0x00, 0x00, 0xFF}); // Red opaque pixels
-
-
 		rgbastruct transformed_pixel_rgbastruct;
 
 		transformed_pixel_rgbastruct.r = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[0]));
@@ -114,12 +92,6 @@ std::vector<rgbastruct> readAndPrint4Bytes(std::istream& inputFile) {//const std
 
 		out.push_back(transformed_pixel_rgbastruct);
 		
-		//for (int i = 0; i < width * height; ++i) {
-//			image[i].r = (char)0xFF;
-//			image[i].g = (char)0x00;
-//			image[i].b = (char)0x00;
-//			image[i].a = (char)0xFF;
-		//}
         
     }
 
@@ -153,14 +125,6 @@ void writeRGBA(const std::string& filename, uint32_t width, uint32_t height, con
         sizeof(height)
     ); //
 
-
-	cout << "not writing more than two unsigned integers\n";
-    // Write raw pixel data directly
-	//file.write(reinterpret_cast<const char*>(pixels.data()), pixels.size() * sizeof(rgbastruct));
-    
-    
-    
-    
 	for (std::vector<rgbastruct>::const_iterator it = pixels.begin(); it != pixels.end(); ++it) {
 		unsigned char r,g,b,a;
 		
@@ -185,34 +149,13 @@ void writeRGBA(const std::string& filename, uint32_t width, uint32_t height, con
 			reinterpret_cast<const char*>(&a), 
 			sizeof(a)
 		);
-		// Access members, e.g., it->r
-		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
-		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
-		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
-		//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+
 	}
     
     
     file.close();
     
 }
-
-// Read an 8x8x8x8 RGBA file
-std::vector<rgbastruct> readRGBA(const std::string& filename, int width, int height) {
-    
-    cout << filename << "_a_filename\n";
-    
-    std::ifstream file(filename, std::ios::binary);
-    if (!file) {
-        std::cerr << "Error opening file for reading!" << std::endl;
-        return {};
-    }
-    std::vector<rgbastruct> pixels(width * height);
-    file.read(reinterpret_cast<char*>(pixels.data()), pixels.size() * sizeof(rgbastruct));
-    file.close();
-    return pixels;
-}
-
 
 
 // Function to read a 32-bit Big Endian integer
@@ -240,26 +183,15 @@ int main() { // int argc, char* argv[]) {
     uint32_t a_width = readBigEndian32();
     uint32_t a_height = readBigEndian32();
     
-    
-        
-    //std::cout << "Read value width: " << value << std::endl;
-    //std::cout << "Read value height: " << value << std::endl;
-    
 
 
     std::cout << "Width: " << a_width << ", Height: " << a_height << std::endl;
 
-	
-	
-	
-	
     std::shared_ptr<TTransport> socket(new TSocket("192.168.1.100", 9090));
     std::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
     std::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-    //CalculatorClient client(protocol);
+
     rgbatransformClient rgbaclient(protocol);
-  
-    //rgbaclient = rgbatransformClient;
 
     try {
 		transport->open();
@@ -288,15 +220,7 @@ int main() { // int argc, char* argv[]) {
 		}
 		
 
-
-
-		// Write
-		writeRGBA("test.rgba", width, height, image);
-
-		std::vector<rgbastruct> a_loadedImage = readAndPrint4Bytes(std::cin); //readRGBA("input.rgba", width, height);
-
-		// Read
-		//std::vector<rgbastruct> loadedImage = readRGBA("test.rgba", width, height);
+		std::vector<rgbastruct> a_loadedImage = readAndPrint4Bytes(std::cin);
 
 		
 		for (std::vector<rgbastruct>::const_iterator it = a_loadedImage.begin(); it != a_loadedImage.end(); ++it) {
@@ -310,13 +234,8 @@ int main() { // int argc, char* argv[]) {
 		
 		cout << a_width << "a_width\n";
 		cout << a_height << "a_heigth\n";
-		//cout << a_filename << "a_filename\n";
+
 		rgbaclient.doMosulA(outvector, a_loadedImage, a_width, a_height);
-		
-		
-		
-		
-		
 		
 		for (std::vector<rgbastruct>::const_iterator it = outvector.begin(); it != outvector.end(); ++it) {
 			// Access members, e.g., it->r
@@ -329,19 +248,12 @@ int main() { // int argc, char* argv[]) {
 		
 		writeRGBA("/out_transformed_image.rgba", a_width, a_height, outvector);
 		
-		
-		
-		//cout << "ping()" << '\n';
-
-		//cout << "1 + 1 = " << client.add(1, 1) << '\n';
 
 		try {
-		  //client.calculate(1, work);
 		  cout << "Whoa? We can divide by zero!" << '\n';
 		} catch (InvalidOperation& io) {
 		  cout << "InvalidOperation: " << io.why << '\n';
-		  // or using generated operator<<: cout << io << '\n';
-		  // or by using std::exception native method what(): cout << io.what() << '\n';
+
 		}
 
 		transport->close();
