@@ -153,32 +153,49 @@ int main() { // int argc, char* argv[]) {
 		std::vector<rgbastruct> outvector;
 		
 		
+		
 		//uint32_t a_width = 100;
 		//uint32_t a_height = 100;
 
 		std::vector<rgbastruct> a_loadedImage = readPng(fileStream);
 
+		std::vector<rgbastruct> a_loadedImageB;
 		
 		for (std::vector<rgbastruct>::const_iterator it = a_loadedImage.begin(); it != a_loadedImage.end(); ++it) {
+			
+			rgbastruct transformed_pixel_rgbastruct;
+			transformed_pixel_rgbastruct.r = it->r;
+			transformed_pixel_rgbastruct.g = it->g;
+			transformed_pixel_rgbastruct.b = it->b;
+			transformed_pixel_rgbastruct.a = it->a;
+
 			// Access members, e.g., it->r
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
+			a_loadedImageB.push_back(transformed_pixel_rgbastruct);
 		}
 
 		cout << "sane\n";
 		
-		rgbaclient.doMosulA(outvector, a_loadedImage, 0, 0);
+		rgbaclient.doMosulA(outvector, a_loadedImageB, 0, 0);
 		
 		cout << "ping rgba" << '\n';
 		rgbaclient.ehlo();
 		for (std::vector<rgbastruct>::const_iterator it = outvector.begin(); it != outvector.end(); ++it) {
+			rgbastruct transformed_pixel_rgbastruct;
+			transformed_pixel_rgbastruct.r = it->r;
+			transformed_pixel_rgbastruct.g = it->g;
+			transformed_pixel_rgbastruct.b = it->b;
+			transformed_pixel_rgbastruct.a = it->a;
+
+			
 			// Access members, e.g., it->r
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
+			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
 		}
 		
 		
