@@ -73,11 +73,11 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 		rgbastruct transformed_pixel_rgbastruct;
 		
 
-		//float luminance = 0.299f * (float)loadedImage[i].r + 0.587f * (float)loadedImage[i].g + 0.114f * (float)loadedImage[i].b;        
-		transformed_pixel_rgbastruct.r = loadedImage[i].r; // (unsigned char)(luminance * 255.0f);
-		transformed_pixel_rgbastruct.g = loadedImage[i].g; // (unsigned char)(luminance * 255.0f);
-		transformed_pixel_rgbastruct.b = loadedImage[i].b; //(unsigned char)(luminance * 255.0f); //
-		transformed_pixel_rgbastruct.a = loadedImage[i].a;
+		float luminance = (0.299f * (float)(loadedImage[i].r / 255.0f)) + (0.587f * (float)(loadedImage[i].g / 255.0f)) + (0.114f * (float)(loadedImage[i].b / 255.0f));        
+		transformed_pixel_rgbastruct.r = (char)(luminance * 255.0f); // loadedImage[i].r; // (unsigned char)
+		transformed_pixel_rgbastruct.g = (char)(luminance * 255.0f); // loadedImage[i].g;
+		transformed_pixel_rgbastruct.b = (char)(luminance * 255.0f); // loadedImage[i].b; //(unsigned char)
+		transformed_pixel_rgbastruct.a = (char)loadedImage[i].a;
 
 //		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
 //		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
