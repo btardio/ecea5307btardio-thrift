@@ -79,10 +79,10 @@ void RgbaHandler::doMosulA(std::vector<rgbastruct>& transformedImage, const std:
 		transformed_pixel_rgbastruct.b = loadedImage[i].b; //(unsigned char)(luminance * 255.0f); //
 		transformed_pixel_rgbastruct.a = loadedImage[i].a;
 
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
-		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
+//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
+//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
+//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
+//		cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(loadedImage[i].a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
 
 		transformedImage.push_back(transformed_pixel_rgbastruct);
 	}

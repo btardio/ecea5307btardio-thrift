@@ -42,6 +42,8 @@ using namespace apache::thrift::transport;
 using namespace tutorial;
 using namespace shared;
 
+png_uint_32 width, height;
+
 std::string filename_create(){
 	// 1. Seed the random number generator once per program run
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -91,7 +93,7 @@ std::vector<rgbastruct> readPng(std::istream& inputFile) {
 	cout << "d\n";
     // 3. Read info and set transforms to force 8-bit RGBA
     png_read_info(png_ptr, info_ptr);
-    png_uint_32 width, height;
+    
     cout << "d\n" << width << " " << height << "\n";
     int bit_depth, color_type;
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, nullptr, nullptr, nullptr);
@@ -118,6 +120,52 @@ std::vector<rgbastruct> readPng(std::istream& inputFile) {
 
     return pixels;
 }
+
+
+
+void writePng(const std::string& filename, const std::vector<rgbastruct>& pixels, png_uint_32 width, png_uint_32 height) {
+    if (pixels.size() != width * height) return; // Basic error checking
+
+    FILE* fp = fopen(filename.c_str(), "wb");
+    if (!fp) return;
+
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png) { fclose(fp); return; }
+
+    png_infop info = png_create_info_struct(png);
+    if (!info) {
+        png_destroy_write_struct(&png, NULL);
+        fclose(fp);
+        return;
+    }
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_write_struct(&png, &info);
+        fclose(fp);
+        return;
+    }
+
+    png_init_io(png, fp);
+    png_set_IHDR(
+        png, info, width, height, 8, 
+        PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT
+    );
+    png_write_info(png, info);
+
+    // Prepare row pointers
+    std::vector<png_bytep> row_pointers(height);
+    for (png_uint_32 y = 0; y < height; y++) {
+        row_pointers[y] = (png_bytep)&pixels[y * width];
+    }
+
+    png_write_image(png, row_pointers.data());
+    png_write_end(png, NULL);
+
+    png_destroy_write_struct(&png, &info);
+    fclose(fp);
+}
+
+
 
 int main() { // int argc, char* argv[]) {
 	int argc;
@@ -158,7 +206,7 @@ int main() { // int argc, char* argv[]) {
 		//uint32_t a_height = 100;
 
 		std::vector<rgbastruct> a_loadedImage = readPng(fileStream);
-
+		fileStream.close();
 		std::vector<rgbastruct> a_loadedImageB;
 		
 		for (std::vector<rgbastruct>::const_iterator it = a_loadedImage.begin(); it != a_loadedImage.end(); ++it) {
@@ -170,10 +218,10 @@ int main() { // int argc, char* argv[]) {
 			transformed_pixel_rgbastruct.a = it->a;
 
 			// Access members, e.g., it->r
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
 			a_loadedImageB.push_back(transformed_pixel_rgbastruct);
 		}
 
@@ -192,15 +240,15 @@ int main() { // int argc, char* argv[]) {
 
 			
 			// Access members, e.g., it->r
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
-			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.r)) << ",";
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->g)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.g)) << ",";
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->b)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.b)) << ",";
+			//cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << static_cast<unsigned int>(static_cast<unsigned char>(transformed_pixel_rgbastruct.a)) << std::endl;
 		}
 		
 		
 		//writeRGBA("/out_transformed_image.rgba", a_width, a_height, outvector);
-		
+		writePng("/images/000.png", outvector, width, height);
 
 		try {
 		  cout << "Whoa? We can divide by zero!" << '\n';
@@ -208,11 +256,12 @@ int main() { // int argc, char* argv[]) {
 		  cout << "InvalidOperation: " << io.why << '\n';
 
 		}
-
+		std::cout.flush();
 		transport->close();
     } catch (TException& tx) {
       cout << "ERROR: " << tx.what() << '\n';
     }
+    exit(0);
 }
 
 
