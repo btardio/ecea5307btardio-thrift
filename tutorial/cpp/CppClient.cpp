@@ -32,6 +32,8 @@
 
 #include "../gen-cpp/rgbatransform.h"
 
+#include <png.h>
+
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -59,116 +61,61 @@ std::string filename_create(){
     return randomStr;
 }
 
-
-std::vector<rgbastruct> readAndPrint4Bytes(std::istream& inputFile) {//const std::string& filename) {
-
-    std::vector<rgbastruct> out;
-
-    // Buffer to hold 4 bytes
-    unsigned char buffer[4];
-    uint32_t value; // Use uint32_t to ensure a consistent 4-byte size across platforms
-
-    // Read 4 bytes at a time until the end of the file
-    while (inputFile.read(reinterpret_cast<char*>(buffer), sizeof(buffer))) {
-        // Use static_cast<unsigned int>(static_cast<unsigned char>()) for each byte
-        // and combine using bitwise shifts. This approach explicitly handles endianness if you define an order.
-        // The following combines bytes in little-endian order (LSB first), common on x86 platforms.
-        
-        value = static_cast<uint32_t>(static_cast<unsigned int>(buffer[0])) |
-                static_cast<uint32_t>(static_cast<unsigned int>(buffer[1])) << 8 |
-                static_cast<uint32_t>(static_cast<unsigned int>(buffer[2])) << 16 |
-                static_cast<uint32_t>(static_cast<unsigned int>(buffer[3])) << 24;
-
-        // Print the value to the terminal (in hexadecimal for clarity)
-        std::cout << "Read value (hex): 0x" << std::hex << std::setw(8) << std::setfill('0') << value << std::dec << std::endl;
-        
-		rgbastruct transformed_pixel_rgbastruct;
-
-		transformed_pixel_rgbastruct.r = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[0]));
-		transformed_pixel_rgbastruct.g = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[1]));
-		transformed_pixel_rgbastruct.b = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[2]));
-		transformed_pixel_rgbastruct.a = (char)static_cast<uint32_t>(static_cast<unsigned int>(buffer[3]));
-		
-
-		out.push_back(transformed_pixel_rgbastruct);
-		
-        
-    }
-
-    // Check if the loop terminated due to an error other than reaching the end of the file
-    if (!inputFile.eof()) {
-        std::cerr << "Error reading file!" << std::endl;
-    }
-
-    //inputFile.close();
-    return out;
+// Custom read function for std::istream
+void png_read_istream(png_structp png_ptr, png_bytep data, png_size_t length) {
+    auto* stream = reinterpret_cast<std::istream*>(png_get_io_ptr(png_ptr));
+    stream->read(reinterpret_cast<char*>(data), length);
+    //if (!*stream) png_error(png_ptr"Read error");
 }
 
+std::vector<rgbastruct> readPng(std::istream& inputFile) {
+    std::vector<rgbastruct> pixels;
 
-// Write an 8x8x8x8 RGBA file
-void writeRGBA(const std::string& filename, uint32_t width, uint32_t height, const std::vector<rgbastruct>& pixels) {
-    std::ofstream file(filename, std::ios::binary);
-    if (!file) {
-        std::cerr << "Error opening file for writing!" << std::endl;
-        return;
+    // 1. Initialize libpng
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png_ptr) return pixels;
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr) {
+        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
+        return pixels;
     }
-    uint32_t big_endian_value_width = htonl(width);
-    uint32_t big_endian_value_height = htonl(height);
-    file.write(
-        reinterpret_cast<const char*>(&big_endian_value_width), 
-        sizeof(width)
-        
-    ); //
 
-	file.write(
-        reinterpret_cast<const char*>(&big_endian_value_height), 
-        sizeof(height)
-    ); //
+//    if (setjmp(png_jmpbuf(png_ptr))) {
+//        png_destroy_read_struct(&png_ptr&info_ptr, nullptr);
+//        return pixels;
+//    }
 
-	for (std::vector<rgbastruct>::const_iterator it = pixels.begin(); it != pixels.end(); ++it) {
-		unsigned char r,g,b,a;
-		
-		r = static_cast<unsigned char>(it->r);
-		g = static_cast<unsigned char>(it->g);
-		b = static_cast<unsigned char>(it->b);
-		a = static_cast<unsigned char>(it->a);
-		
-		file.write(
-			reinterpret_cast<const char*>(&r), 
-			sizeof(r)
-		);
-		file.write(
-			reinterpret_cast<const char*>(&g), 
-			sizeof(g)
-		);
-		file.write(
-			reinterpret_cast<const char*>(&b), 
-			sizeof(b)
-		);
-		file.write(
-			reinterpret_cast<const char*>(&a), 
-			sizeof(a)
-		);
+    // 2. Set up custom I/O
+    png_set_read_fn(png_ptr, &inputFile, png_read_istream);
 
-	}
-    
-    
-    file.close();
-    
-}
+    // 3. Read info and set transforms to force 8-bit RGBA
+    png_read_info(png_ptr, info_ptr);
+    png_uint_32 width, height;
+    int bit_depth, color_type;
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, nullptr, nullptr, nullptr);
 
+    if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png_ptr);
+    if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) png_set_expand_gray_1_2_4_to_8(png_ptr);
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png_ptr);
+    if (bit_depth == 16) png_set_strip_16(png_ptr);
+    if (!(color_type & PNG_COLOR_MASK_ALPHA)) png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
+    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png_ptr);
 
-// Function to read a 32-bit Big Endian integer
-uint32_t readBigEndian32() {
-    uint8_t bytes[4];
-    // Read 4 bytes from stdin
-    std::cin.read(reinterpret_cast<char*>(bytes), 4);
-    
-    // Combine bytes: MSB first (index 0)
-    return (static_cast<uint32_t>(bytes[0]) << 24) |
-           (static_cast<uint32_t>(bytes[1]) << 16) |
-           (static_cast<uint32_t>(bytes[2]) << 8)  |
-           (static_cast<uint32_t>(bytes[3]));
+    png_read_update_info(png_ptr, info_ptr);
+    pixels.resize(width * height);
+
+    // 4. Read image data
+    std::vector<png_bytep> row_pointers(height);
+    for (png_uint_32 y = 0; y < height; y++) {
+        row_pointers[y] = reinterpret_cast<png_bytep>(&pixels[y * width]);
+    }
+
+    png_read_image(png_ptr, row_pointers.data());
+    png_read_end(png_ptr, nullptr);
+    png_destroy_read_struct(&png_ptr,&info_ptr, nullptr);
+
+    return pixels;
 }
 
 int main() { // int argc, char* argv[]) {
@@ -179,13 +126,15 @@ int main() { // int argc, char* argv[]) {
 		std::cout << "stdin error\n";
 		return -1;
 	}
-		
-    uint32_t a_width = readBigEndian32();
-    uint32_t a_height = readBigEndian32();
     
+    std::string filename = "/images/untitled.png";
 
+    std::ifstream fileStream(filename);
 
-    std::cout << "Width: " << a_width << ", Height: " << a_height << std::endl;
+    if (!fileStream.is_open()) {
+        std::cerr << "Error: Could not open the file " << filename << std::endl;
+        return 1;
+    }
 
     std::shared_ptr<TTransport> socket(new TSocket("192.168.1.100", 9090));
     std::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
@@ -203,24 +152,10 @@ int main() { // int argc, char* argv[]) {
 		std::vector<rgbastruct> outvector;
 		
 		
-		
-		int width = 8, height = 8;
-		
-		
+		uint32_t a_width = 100;
+		uint32_t a_height = 100;
 
-		
-		std::vector<rgbastruct> image(width * height); //(width * height, {0xFF, 0x00, 0x00, 0xFF}); // Red opaque pixels
-
-
-		for (int i = 0; i < width * height; ++i) {
-			image[i].r = (char)0xFF;
-			image[i].g = (char)0x00;
-			image[i].b = (char)0x00;
-			image[i].a = (char)0xFF;
-		}
-		
-
-		std::vector<rgbastruct> a_loadedImage = readAndPrint4Bytes(std::cin);
+		std::vector<rgbastruct> a_loadedImage = readPng(std::cin);
 
 		
 		for (std::vector<rgbastruct>::const_iterator it = a_loadedImage.begin(); it != a_loadedImage.end(); ++it) {
@@ -231,10 +166,8 @@ int main() { // int argc, char* argv[]) {
 			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->a)) << std::endl;
 		}
 
+		cout << "sane\n";
 		
-		cout << a_width << "a_width\n";
-		cout << a_height << "a_heigth\n";
-
 		rgbaclient.doMosulA(outvector, a_loadedImage, a_width, a_height);
 		
 		for (std::vector<rgbastruct>::const_iterator it = outvector.begin(); it != outvector.end(); ++it) {
@@ -246,7 +179,7 @@ int main() { // int argc, char* argv[]) {
 		}
 		
 		
-		writeRGBA("/out_transformed_image.rgba", a_width, a_height, outvector);
+		//writeRGBA("/out_transformed_image.rgba", a_width, a_height, outvector);
 		
 
 		try {
@@ -261,3 +194,5 @@ int main() { // int argc, char* argv[]) {
       cout << "ERROR: " << tx.what() << '\n';
     }
 }
+
+
