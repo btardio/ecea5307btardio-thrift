@@ -65,7 +65,7 @@ std::string filename_create(){
 void png_read_istream(png_structp png_ptr, png_bytep data, png_size_t length) {
     auto* stream = reinterpret_cast<std::istream*>(png_get_io_ptr(png_ptr));
     stream->read(reinterpret_cast<char*>(data), length);
-    //if (!*stream) png_error(png_ptr"Read error");
+    if (!*stream) png_error(png_ptr, "Read error");
 }
 
 std::vector<rgbastruct> readPng(std::istream& inputFile) {
@@ -74,37 +74,38 @@ std::vector<rgbastruct> readPng(std::istream& inputFile) {
     // 1. Initialize libpng
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png_ptr) return pixels;
-
+	cout << "a\n";
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
         png_destroy_read_struct(&png_ptr, nullptr, nullptr);
         return pixels;
     }
-
-//    if (setjmp(png_jmpbuf(png_ptr))) {
-//        png_destroy_read_struct(&png_ptr&info_ptr, nullptr);
-//        return pixels;
-//    }
-
+	cout << "b\n";
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+        return pixels;
+    }
+	cout << "c\n";
     // 2. Set up custom I/O
     png_set_read_fn(png_ptr, &inputFile, png_read_istream);
-
+	cout << "d\n";
     // 3. Read info and set transforms to force 8-bit RGBA
     png_read_info(png_ptr, info_ptr);
     png_uint_32 width, height;
+    cout << "d\n" << width << " " << height << "\n";
     int bit_depth, color_type;
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, nullptr, nullptr, nullptr);
-
+	cout << "e\n";
     if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png_ptr);
     if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) png_set_expand_gray_1_2_4_to_8(png_ptr);
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png_ptr);
     if (bit_depth == 16) png_set_strip_16(png_ptr);
     if (!(color_type & PNG_COLOR_MASK_ALPHA)) png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
     if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png_ptr);
-
+	cout << "f\n";
     png_read_update_info(png_ptr, info_ptr);
     pixels.resize(width * height);
-
+	cout << "g\n";
     // 4. Read image data
     std::vector<png_bytep> row_pointers(height);
     for (png_uint_32 y = 0; y < height; y++) {
@@ -152,10 +153,10 @@ int main() { // int argc, char* argv[]) {
 		std::vector<rgbastruct> outvector;
 		
 		
-		uint32_t a_width = 100;
-		uint32_t a_height = 100;
+		//uint32_t a_width = 100;
+		//uint32_t a_height = 100;
 
-		std::vector<rgbastruct> a_loadedImage = readPng(std::cin);
+		std::vector<rgbastruct> a_loadedImage = readPng(fileStream);
 
 		
 		for (std::vector<rgbastruct>::const_iterator it = a_loadedImage.begin(); it != a_loadedImage.end(); ++it) {
@@ -168,8 +169,10 @@ int main() { // int argc, char* argv[]) {
 
 		cout << "sane\n";
 		
-		rgbaclient.doMosulA(outvector, a_loadedImage, a_width, a_height);
+		rgbaclient.doMosulA(outvector, a_loadedImage, 0, 0);
 		
+		cout << "ping rgba" << '\n';
+		rgbaclient.ehlo();
 		for (std::vector<rgbastruct>::const_iterator it = outvector.begin(); it != outvector.end(); ++it) {
 			// Access members, e.g., it->r
 			cout << "item: " << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(it->r)) << ",";
